@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+ <meta charset="UTF-8" />
+ <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+ <title>Turismo OS — Entrar</title>
+ <!-- Fonte opcional, carregada de forma assincrona (nunca bloqueia a tela). -->
+ <script>
+    (function () {
+      var l = document.createElement('link');
+      l.rel = 'stylesheet';
+      l.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap';
+      document.head.appendChild(l);
+    })();
+ </script>
+ <style>
+    :root {
+      --bg: #0b1220;
+      --panel: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --line: #e2e8f0;
+      --brand: #0d6efd;
+      --brand-dark: #0a58ca;
+      --danger: #dc3545;
+      --ok: #16a34a;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { height: 100%; margin: 0; }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      color: var(--text);
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      min-height: 100vh;
+      background: var(--bg);
+    }
+
+    /* ---------- Painel de marca (esquerda) ---------- */
+    .brand-side {
+      position: relative;
+      overflow: hidden;
+      background: radial-gradient(1200px 600px at 15% 10%, #1d4ed8 0%, #0b1220 55%),
+                  linear-gradient(160deg, #0b1220 0%, #111c33 100%);
+      color: #e6eeff;
+      padding: 48px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .brand-side::after {
+      content: "";
+      position: absolute;
+      inset: -40% -20% auto;
+      width: 520px; height: 520px;
+      background: radial-gradient(circle, rgba(13,110,253,.45), transparent 62%);
+      filter: blur(8px);
+      pointer-events: none;
+    }
+
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      letter-spacing: .2px;
+      font-size: 18px;
+      z-index: 1;
+    }
+
+    .logo .mark {
+      width: 38px; height: 38px;
+      border-radius: 11px;
+      background: linear-gradient(135deg, #3b82f6, #0ea5e9);
+      display: grid; place-items: center;
+      box-shadow: 0 8px 22px rgba(37,99,235,.45);
+    }
+
+    .logo .mark svg { width: 21px; height: 21px; }
+
+    .brand-copy { z-index: 1; max-width: 460px; }
+
+    .brand-copy h1 {
+      font-size: 40px;
+      line-height: 1.12;
+      margin: 0 0 14px;
+      font-weight: 700;
+    }
+
+    .brand-copy p {
+      margin: 0 0 26px;
+      color: #a9bce0;
+      font-size: 15.5px;
+      line-height: 1.65;
+    }
+
+    .features { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; }
+
+    .features li {
+      display: flex; align-items: center; gap: 12px;
+      color: #d6e2ff; font-size: 14.5px;
+    }
+
+    .features .dot {
+      width: 30px; height: 30px; border-radius: 9px;
+      background: rgba(59,130,246,.16);
+      border: 1px solid rgba(59,130,246,.35);
+      display: grid; place-items: center;
+      flex: 0 0 auto;
+    }
+
+    .features .dot svg { width: 16px; height: 16px; }
+
+    .brand-foot { color: #7d90b8; font-size: 12.5px; z-index: 1; }
+
+    /* ---------- Painel de formulário (direita) ---------- */
+    .form-side {
+      background: var(--panel);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 28px;
+    }
+
+    .card { width: 100%; max-width: 400px; }
+
+    .card .mobile-logo { display: none; }
+
+    .card h2 {
+      margin: 0 0 6px;
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -.2px;
+    }
+
+    .card .subtitle {
+      margin: 0 0 28px;
+      color: var(--muted);
+      font-size: 14.5px;
+    }
+
+    .field { margin-bottom: 18px; }
+
+    .field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 7px;
+      color: #334155;
+    }
+
+    .control { position: relative; display: flex; align-items: center; }
+
+    .control .icon {
+      position: absolute; left: 13px;
+      width: 18px; height: 18px; color: #94a3b8;
+      pointer-events: none;
+    }
+
+    .control input {
+      width: 100%;
+      padding: 12.5px 14px 12.5px 42px;
+      border: 1.5px solid var(--line);
+      border-radius: 11px;
+      font-size: 14.5px;
+      font-family: inherit;
+      color: var(--text);
+      background: #f8fafc;
+      transition: border-color .15s, box-shadow .15s, background .15s;
+      outline: none;
+    }
+
+    .control input::placeholder { color: #9aa8bd; }
+
+    .control input:focus {
+      border-color: var(--brand);
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(13,110,253,.12);
+    }
+
+    .control.has-toggle input { padding-right: 46px; }
+
+    .toggle-eye {
+      position: absolute; right: 8px;
+      background: transparent; border: 0; cursor: pointer;
+      width: 34px; height: 34px; border-radius: 8px;
+      display: grid; place-items: center; color: #94a3b8;
+    }
+
+    .toggle-eye:hover { background: #eef2f7; color: #475569; }
+    .toggle-eye svg { width: 18px; height: 18px; }
+
+    .row-between {
+      display: flex; align-items: center; justify-content: space-between;
+      margin: -4px 0 22px;
+    }
+
+    .remember { display: flex; align-items: center; gap: 8px; font-size: 13.5px; color: #475569; cursor: pointer; }
+    .remember input { width: 16px; height: 16px; accent-color: var(--brand); cursor: pointer; }
+
+    .link {
+      color: var(--brand); text-decoration: none; font-size: 13.5px; font-weight: 600;
+    }
+    .link:hover { text-decoration: underline; }
+
+    .btn-primary {
+      width: 100%;
+      padding: 13px;
+      border: 0;
+      border-radius: 11px;
+      background: linear-gradient(180deg, #2b7bff, var(--brand-dark));
+      color: #fff;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: transform .05s, box-shadow .15s, filter .15s;
+      box-shadow: 0 8px 20px rgba(13,110,253,.28);
+      display: flex; align-items: center; justify-content: center; gap: 9px;
+    }
+
+    .btn-primary:hover { filter: brightness(1.05); }
+    .btn-primary:active { transform: translateY(1px); }
+    .btn-primary:disabled { opacity: .7; cursor: not-allowed; }
+
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,.45);
+      border-top-color: #fff; border-radius: 50%;
+      animation: spin .7s linear infinite;
+      display: none;
+    }
+    .btn-primary.loading .spinner { display: block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .alert {
+      display: none;
+      align-items: flex-start; gap: 10px;
+      padding: 12px 14px; border-radius: 10px;
+      font-size: 13.5px; margin-bottom: 18px;
+      border: 1px solid transparent;
+    }
+    .alert.show { display: flex; }
+    .alert.error { background: #fef2f2; border-color: #fecaca; color: #991b1b; }
+    .alert.success { background: #f0fdf4; border-color: #bbf7d0; color: #166534; }
+    .alert svg { width: 18px; height: 18px; flex: 0 0 auto; margin-top: 1px; }
+
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 24px 0; color: #94a3b8; font-size: 12.5px;
+    }
+    .divider::before, .divider::after {
+      content: ""; flex: 1; height: 1px; background: var(--line);
+    }
+
+    .hint {
+      margin-top: 22px; text-align: center;
+      font-size: 13px; color: var(--muted);
+    }
+
+    .demo {
+      margin-top: 8px; padding: 12px 14px;
+      background: #f1f5f9; border: 1px dashed #cbd5e1; border-radius: 10px;
+      font-size: 12.5px; color: #475569; line-height: 1.7;
+    }
+    .demo code { background: #e2e8f0; padding: 1px 6px; border-radius: 5px; font-size: 12px; }
+
+    .field.invalid input { border-color: var(--danger); background: #fff5f5; }
+    .error-msg { color: var(--danger); font-size: 12.5px; margin-top: 6px; display: none; }
+    .field.invalid .error-msg { display: block; }
+
+    .field .hint-inline { font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+    .btn-ghost {
+      width: 100%;
+      margin-top: 10px;
+      padding: 11px;
+      border: 1.5px solid var(--line);
+      border-radius: 11px;
+      background: #fff;
+      color: #334155;
+      font-size: 14px; font-weight: 600; font-family: inherit;
+      cursor: pointer; transition: background .15s, border-color .15s;
+    }
+    .btn-ghost:hover { background: #f8fafc; border-color: #cbd5e1; }
+
+    .strength { display: flex; gap: 5px; margin-top: 8px; }
+    .strength i { flex: 1; height: 4px; border-radius: 3px; background: #e2e8f0; transition: background .2s; }
+    .strength.s1 i:nth-child(1) { background: #ef4444; }
+    .strength.s2 i:nth-child(-n+2) { background: #f59e0b; }
+    .strength.s3 i:nth-child(-n+3) { background: #22c55e; }
+
+    /* Painéis alternativos (login / recuperar / cadastro) */
+    .pane { display: none; }
+    .pane.active { display: block; }
+
+    /* Modal de confirmação simples */
+    .modal-backdrop {
+      position: fixed; inset: 0; z-index: 50;
+      background: rgba(11,18,32,.55); backdrop-filter: blur(2px);
+      display: none; align-items: center; justify-content: center; padding: 24px;
+    }
+    .modal-backdrop.show { display: flex; }
+    .modal {
+      width: 100%; max-width: 420px; background: #fff; border-radius: 16px;
+      padding: 26px; box-shadow: 0 24px 60px rgba(2,6,23,.35);
+      animation: pop .16s ease-out;
+    }
+    @keyframes pop { from { transform: scale(.96); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .modal h3 { margin: 0 0 8px; font-size: 19px; }
+    .modal p { margin: 0 0 20px; color: var(--muted); font-size: 14px; line-height: 1.6; }
+    .modal .actions { display: flex; gap: 10px; }
+    .modal .actions button { flex: 1; }
+    .modal .actions .btn-primary { width: auto; }
+
+    /* Status do banco de dados */
+    .db-status {
+      display: inline-flex; align-items: center; gap: 7px;
+      font-size: 12px; font-weight: 500; color: #94a3b8;
+      margin-bottom: 16px; padding: 5px 11px;
+      background: #f1f5f9; border: 1px solid var(--line); border-radius: 999px;
+      transition: color .2s, background .2s, border-color .2s;
+    }
+    .db-status::before {
+      content: ""; width: 7px; height: 7px; border-radius: 50%;
+      background: #cbd5e1; box-shadow: 0 0 0 3px rgba(203,213,225,.35);
+      transition: background .2s, box-shadow .2s;
+    }
+    .db-status.ready { color: #166534; background: #f0fdf4; border-color: #bbf7d0; }
+    .db-status.ready::before { background: var(--ok); box-shadow: 0 0 0 3px rgba(22,163,74,.22); }
+
+    /* ---------- Responsivo ---------- */
+    @media (max-width: 900px) {
+      body { grid-template-columns: 1fr; }
+      .brand-side { display: none; }
+      .card .mobile-logo {
+        display: inline-flex; align-items: center; gap: 10px;
+        font-weight: 700; margin-bottom: 26px; color: #0f172a;
+      }
+      .card .mobile-logo .mark {
+        width: 36px; height: 36px; border-radius: 10px;
+        background: linear-gradient(135deg, #3b82f6, #0ea5e9);
+        display: grid; place-items: center;
+      }
+      .card .mobile-logo .mark svg { width: 20px; height: 20px; }
+    }
+ </style>
+</head>
+<body>
+  <!-- Painel de marca -->
+ <aside class="brand-side">
+    <div class="logo">
+      <span class="mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 21h18" /><path d="M5 21V7l7-4 7 4v14" />
+          <path d="M9 21v-6h6v6" />
+        </svg>
+      </span>
+      Turismo OS
+    </div>
+
+    <div class="brand-copy">
+      <h1>Gestão de Hotel<br />e Restaurante,<br />em um só lugar.</h1>
+      <p>Reservas, check-in, quartos, mesa, pedidos e faturamento — tudo integrado numa plataforma só.</p>
+      <ul class="features">
+        <li>
+          <span class="dot">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20" /><path d="M4 20V9l8-5 8 5v11" /><path d="M9 20v-5h6v5" /></svg>
+          </span>
+          Controle de quartos e reservas
+        </li>
+        <li>
+          <span class="dot">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11h16" /><path d="M5 11V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v4" /><path d="M3 11v6a1 1 0 0 0 1 1h1" /><path d="M19 18h1a1 1 0 0 0 1-1v-6" /><path d="M7 18v2" /><path d="M17 18v2" /></svg>
+          </span>
+          Mesas, pedidos e cozinha
+        </li>
+        <li>
+          <span class="dot">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18" /><path d="M7 15l4-4 3 3 6-6" /></svg>
+          </span>
+          Relatórios e faturamento em tempo real
+        </li>
+      </ul>
+    </div>
+
+    <div class="brand-foot">© 2026 Turismo OS — Plataforma de gestão hoteleira e gastronômica</div>
+ </aside>
+
+  <!-- Painel do formulário -->
+ <main class="form-side">
+    <div class="card">
+      <div class="mobile-logo">
+        <span class="mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 21h18" /><path d="M5 21V7l7-4 7 4v14" /><path d="M9 21v-6h6v6" />
+          </svg>
+        </span>
+        Turismo OS
+      </div>
+
+      <div class="db-status" id="dbStatus">Conectando ao banco...</div>
+
+      <div class="alert error" id="alertError" role="alert">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4" /><path d="M12 16h.01" /></svg>
+        <span id="alertErrorText">Usuário ou senha inválidos.</span>
+      </div>
+
+      <!-- ===================== ENTRAR ===================== -->
+      <section class="pane active" id="paneLogin">
+        <h2>Bem-vindo de volta</h2>
+        <p class="subtitle">Entre com suas credenciais para acessar o painel.</p>
+
+        <form id="loginForm" novalidate>
+          <div class="field" id="fieldUser">
+            <label for="usuario">E-mail</label>
+            <div class="control">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z" opacity="0" /><path d="M22 6l-10 7L2 6" /><rect x="2" y="4" width="20" height="16" rx="2" /></svg>
+              <input type="email" id="usuario" name="usuario" placeholder="seu@email.com" autocomplete="username" required />
+            </div>
+            <div class="error-msg">Informe o e-mail.</div>
+          </div>
+
+          <div class="field" id="fieldPass">
+            <label for="senha">Senha</label>
+            <div class="control has-toggle">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+              <input type="password" id="senha" name="senha" placeholder="••" autocomplete="current-password" required />
+              <button type="button" class="toggle-eye" id="toggleEye" aria-label="Mostrar senha">
+                <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" /><circle cx="12" cy="12" r="3" /></svg>
+              </button>
+            </div>
+            <div class="error-msg">Informe a senha.</div>
+          </div>
+
+          <div class="row-between">
+            <label class="remember">
+              <input type="checkbox" id="lembrar" />
+              Lembrar de mim
+            </label>
+            <a class="link" href="#" id="forgot">Esqueci a senha</a>
+          </div>
+
+          <button type="submit" class="btn-primary" id="btnLogin">
+            <span class="spinner"></span>
+            <span id="btnText">Entrar</span>
+          </button>
+        </form>
+
+        <div class="divider">ACESSO DEMONSTRAÇÃO</div>
+        <div class="demo">
+          E-mail: <code>admin@turismoos.com</code> &nbsp;•&nbsp; Senha: <code>123456</code><br />
+          Perfis: <code>admin@turismoos.com</code> (gerente) · <code>recepcao@turismoos.com</code> (recepção) · <code>garcom@turismoos.com</code> (restaurante)<br />
+          Os dados vêm do banco <strong>IndexedDB</strong> no seu navegador.
+        </div>
+
+        <p class="hint">Não tem conta? <a class="link" href="#" id="signup">Criar novo cadastro</a></p>
+      </section>
+
+      <!-- ===================== ESQUECI A SENHA ===================== -->
+      <section class="pane" id="paneForgot">
+        <h2>Recuperar senha</h2>
+        <p class="subtitle">Informe o e-mail da conta. Enviaremos as instruções de redefinição.</p>
+
+        <form id="forgotForm" novalidate>
+          <div class="field" id="fieldForgotEmail">
+            <label for="forgotEmail">E-mail</label>
+            <div class="control">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 6l-10 7L2 6" /><rect x="2" y="4" width="20" height="16" rx="2" /></svg>
+              <input type="email" id="forgotEmail" name="forgotEmail" placeholder="seu@email.com" autocomplete="email" required />
+            </div>
+            <div class="error-msg">Informe um e-mail válido.</div>
+          </div>
+
+          <div class="field" id="fieldForgotPass">
+            <label for="forgotPass">Nova senha</label>
+            <div class="control has-toggle">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+              <input type="password" id="forgotPass" name="forgotPass" placeholder="Mínimo de 6 caracteres" autocomplete="new-password" required />
+              <button type="button" class="toggle-eye" id="toggleEyeF" aria-label="Mostrar senha">
+                <svg id="eyeIconF" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" /><circle cx="12" cy="12" r="3" /></svg>
+              </button>
+            </div>
+            <div class="strength" id="forgotStrength"><i></i><i></i><i></i></div>
+            <div class="hint-inline">Defina uma senha nova com pelo menos 6 caracteres.</div>
+            <div class="error-msg">Informe uma senha de no mínimo 6 caracteres.</div>
+          </div>
+
+          <div class="field" id="fieldForgotPass2">
+            <label for="forgotPass2">Confirmar nova senha</label>
+            <div class="control">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+              <input type="password" id="forgotPass2" name="forgotPass2" placeholder="Repita a nova senha" autocomplete="new-password" required />
+            </div>
+            <div class="error-msg">As senhas não conferem.</div>
+          </div>
+
+          <button type="submit" class="btn-primary" id="btnForgot">
+            <span class="spinner"></span>
+            <span id="btnForgotText">Redefinir senha</span>
+          </button>
+          <button type="button" class="btn-ghost" id="backFromForgot">Voltar para o login</button>
+        </form>
+      </section>
+
+      <!-- ===================== NOVO CADASTRO ===================== -->
+      <section class="pane" id="paneSignup">
+        <h2>Criar conta</h2>
+        <p class="subtitle">Preencha os dados para solicitar seu acesso ao sistema.</p>
+
+        <form id="signupForm" novalidate>
+          <div class="field" id="fieldNome">
+            <label for="nome">Nome completo</label>
+            <div class="control">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+              <input type="text" id="nome" name="nome" placeholder="ex.: Maria Souza" autocomplete="name" required />
+            </div>
+            <div class="error-msg">Informe o nome.</div>
+          </div>
+
+          <div class="field" id="fieldEmail">
+            <label for="email">E-mail</label>
+            <div class="control">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 6l-10 7L2 6" /><rect x="2" y="4" width="20" height="16" rx="2" /></svg>
+              <input type="email" id="email" name="email" placeholder="seu@email.com" autocomplete="email" required />
+            </div>
+            <div class="error-msg">Informe um e-mail válido.</div>
+          </div>
+
+          <div class="field" id="fieldPerfil">
+            <label for="perfil">Perfil de acesso</label>
+            <div class="control">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z" /></svg>
+              <select id="perfil" name="perfil" style="appearance:none">
+                <option value="recepcao">Recepção</option>
+                <option value="garcom">Restaurante (garçom)</option>
+                <option value="admin">Gerente / administrador</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field" id="fieldNewPass">
+            <label for="newPass">Senha</label>
+            <div class="control has-toggle">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+              <input type="password" id="newPass" name="newPass" placeholder="Mínimo de 6 caracteres" autocomplete="new-password" required />
+              <button type="button" class="toggle-eye" id="toggleEyeN" aria-label="Mostrar senha">
+                <svg id="eyeIconN" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" /><circle cx="12" cy="12" r="3" /></svg>
+              </button>
+            </div>
+            <div class="strength" id="newStrength"><i></i><i></i><i></i></div>
+            <div class="error-msg">Informe uma senha de no mínimo 6 caracteres.</div>
+          </div>
+
+          <div class="field" id="fieldConfirm">
+            <label for="confirm">Confirmar senha</label>
+            <div class="control">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+              <input type="password" id="confirm" name="confirm" placeholder="Repita a senha" autocomplete="new-password" required />
+            </div>
+            <div class="error-msg">As senhas não conferem.</div>
+          </div>
+
+          <button type="submit" class="btn-primary" id="btnSignup">
+            <span class="spinner"></span>
+            <span id="btnSignupText">Criar conta</span>
+          </button>
+          <button type="button" class="btn-ghost" id="backFromSignup">Já tenho conta</button>
+        </form>
+      </section>
+    </div>
+
+    <!-- Modal de confirmação -->
+    <div class="modal-backdrop" id="modal">
+      <div class="modal">
+        <h3 id="modalTitle">Título</h3>
+        <p id="modalText">Mensagem</p>
+        <div class="actions">
+          <button type="button" class="btn-ghost" id="modalCancel">Fechar</button>
+          <button type="button" class="btn-primary" id="modalOk">Continuar</button>
+        </div>
+      </div>
+    </div>
+ </main>
+
+ <script src="db.js"></script>
+ <script>
+    (function () {
+      var form      = document.getElementById('loginForm');
+      var elUser    = document.getElementById('usuario');  // agora e-mail
+      var elPass    = document.getElementById('senha');
+      var fieldUser = document.getElementById('fieldUser');
+      var fieldPass = document.getElementById('fieldPass');
+      var btn       = document.getElementById('btnLogin');
+      var btnText   = document.getElementById('btnText');
+      var alertBox  = document.getElementById('alertError');
+      var alertText = document.getElementById('alertErrorText');
+      var toggleEye = document.getElementById('toggleEye');
+      var eyeIcon   = document.getElementById('eyeIcon');
+      var lembrar   = document.getElementById('lembrar');
+
+      var EYE_OPEN  = '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/>';
+      var EYE_CLOSE = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M1 1l22 22"/>';
+      var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      /* ---------- Utilidades de tela ---------- */
+      function showError(msg) { alertText.textContent = msg; alertBox.classList.remove('success'); alertBox.classList.add('error', 'show'); }
+      function showSuccess(msg) { alertText.textContent = msg; alertBox.classList.remove('error'); alertBox.classList.add('success', 'show'); }
+      function hideError() { alertBox.classList.remove('show'); }
+
+      function paneAtivo() { return document.querySelector('.pane.active').id; }
+      function mostrarPainel(id) {
+        ['paneLogin', 'paneForgot', 'paneSignup'].forEach(function (p) {
+          document.getElementById(p).classList.toggle('active', p === id);
+        });
+        hideError();
+        var primeiro = document.querySelector('#' + id + ' input');
+        if (primeiro) primeiro.focus();
+      }
+
+      // Olho de mostrar/ocultar senha (reutilizado nos 3 campos de senha)
+      function ligarOlho(btnId, iconId, inputId) {
+        var b = document.getElementById(btnId), ic = document.getElementById(iconId), inp = document.getElementById(inputId);
+        b.addEventListener('click', function () {
+          var show = inp.type === 'password';
+          inp.type = show ? 'text' : 'password';
+          ic.innerHTML = show ? EYE_CLOSE : EYE_OPEN;
+        });
+      }
+      ligarOlho('toggleEye', 'eyeIcon', 'senha');
+      ligarOlho('toggleEyeF', 'eyeIconF', 'forgotPass');
+      ligarOlho('toggleEyeN', 'eyeIconN', 'newPass');
+
+      // Limpa estado de erro ao digitar
+      Array.prototype.forEach.call(document.querySelectorAll('.pane input'), function (el) {
+        el.addEventListener('input', function () { el.closest('.field').classList.remove('invalid'); hideError(); });
+      });
+
+      // Indicador simples de força de senha
+      function forcaSenha(v) { var n = 0; if (v.length >= 6) n = 1; if (v.length >= 8 && /[0-9]/.test(v)) n = 2; if (v.length >= 10 && /[A-Z]/.test(v) && /[^A-Za-z0-9]/.test(v)) n = 3; return n; }
+      function pintarForca(el, v) { el.className = 'strength s' + forcaSenha(v); }
+      document.getElementById('forgotPass').addEventListener('input', function () { pintarForca(document.getElementById('forgotStrength'), this.value); });
+      document.getElementById('newPass').addEventListener('input', function () { pintarForca(document.getElementById('newStrength'), this.value); });
+
+      // Modal de confirmação
+      var modal = document.getElementById('modal');
+      function abrirModal(titulo, texto, okLabel, onOk) {
+        document.getElementById('modalTitle').textContent = titulo;
+        document.getElementById('modalText').textContent = texto;
+        var ok = document.getElementById('modalOk');
+        ok.textContent = okLabel || 'Continuar';
+        modal.classList.add('show');
+        var novo = ok.cloneNode(true); // remove listeners anteriores
+        ok.parentNode.replaceChild(novo, ok);
+        novo.addEventListener('click', function () { modal.classList.remove('show'); if (onOk) onOk(); });
+      }
+      document.getElementById('modalCancel').addEventListener('click', function () { modal.classList.remove('show'); });
+
+      /* ---------- Localiza usuário por e-mail (usuario OU email) ---------- */
+      function acharPorEmail(email) {
+        // DB.buscarUsuario funciona nos dois modos (servidor e IndexedDB local).
+        return DB.buscarUsuario(String(email || '').trim().toLowerCase());
+      }
+
+      // Lembrar e-mail
+      try {
+        var saved = localStorage.getItem('turismo_user');
+        if (saved) { elUser.value = saved; lembrar.checked = true; }
+      } catch (e) { /* armazenamento indisponível */ }
+
+      /* ===================== ENTRAR ===================== */
+      form.addEventListener('submit', function (ev) {
+        ev.preventDefault();
+        hideError();
+        fieldUser.classList.remove('invalid');
+        fieldPass.classList.remove('invalid');
+
+        var email = elUser.value.trim().toLowerCase();
+        var p = elPass.value;
+        var ok = true;
+        if (!email) { fieldUser.classList.add('invalid'); ok = false; }
+        else if (!EMAIL_RE.test(email)) { fieldUser.classList.add('invalid'); ok = false; }
+        if (!p) { fieldPass.classList.add('invalid'); ok = false; }
+        if (!ok) { showError('Informe e-mail e senha válidos para continuar.'); return; }
+
+        btn.disabled = true;
+        btn.classList.add('loading');
+        btnText.textContent = 'Entrando...';
+
+        // Login por e-mail: procura a conta e autentica pelo "usuario" dela.
+        acharPorEmail(email).then(function (u) {
+          if (!u) throw new Error('E-mail não cadastrado.');
+          return DB.autenticar(u.usuario, p);
+        }).then(function (res) {
+          if (!res.ok) {
+            btn.disabled = false; btn.classList.remove('loading'); btnText.textContent = 'Entrar';
+            showError(res.erro || 'E-mail ou senha inválidos. Tente novamente.');
+            fieldPass.classList.add('invalid');
+            elPass.value = ''; elPass.focus();
+            return;
+          }
+          var found = res.usuario;
+          DB.registrarSessao(found).catch(function () { /* log opcional */ });
+          try {
+            if (lembrar.checked) localStorage.setItem('turismo_user', email);
+            else localStorage.removeItem('turismo_user');
+            localStorage.setItem('turismo_session', JSON.stringify({
+              id: found.id, usuario: found.usuario, nome: found.nome, perfil: found.perfil,
+              empresaId: found.empresaId, token: res.token || null, em: Date.now()
+            }));
+          } catch (e) { /* ignore */ }
+
+          btnText.textContent = 'Bem-vindo, ' + found.nome.split(' ')[0] + '!';
+          showSuccess('Login efetuado. Redirecionando...');
+          setTimeout(function () { window.location.href = 'dashboard.html'; }, 700);
+        }).catch(function (err) {
+          btn.disabled = false; btn.classList.remove('loading'); btnText.textContent = 'Entrar';
+          showError(err && err.message ? err.message : 'Falha ao acessar o banco de dados.');
+        });
+      });
+
+      /* ===================== ESQUECI A SENHA ===================== */
+      document.getElementById('forgot').addEventListener('click', function (e) {
+        e.preventDefault();
+        document.getElementById('forgotForm').reset();
+        document.getElementById('forgotStrength').className = 'strength';
+        mostrarPainel('paneForgot');
+      });
+      document.getElementById('backFromForgot').addEventListener('click', function () { mostrarPainel('paneLogin'); });
+
+      document.getElementById('forgotForm').addEventListener('submit', function (ev) {
+        ev.preventDefault();
+        hideError();
+        var fEmail = document.getElementById('fieldForgotEmail');
+        var fPass  = document.getElementById('fieldForgotPass');
+        var fPass2 = document.getElementById('fieldForgotPass2');
+        fEmail.classList.remove('invalid'); fPass.classList.remove('invalid'); fPass2.classList.remove('invalid');
+
+        var email = document.getElementById('forgotEmail').value.trim().toLowerCase();
+        var senha = document.getElementById('forgotPass').value;
+        var senha2 = document.getElementById('forgotPass2').value;
+        var ok = true;
+        if (!EMAIL_RE.test(email)) { fEmail.classList.add('invalid'); ok = false; }
+        if (senha.length < 6) { fPass.classList.add('invalid'); ok = false; }
+        if (senha !== senha2) { fPass2.classList.add('invalid'); ok = false; }
+        if (!ok) { showError('Verifique os campos destacados.'); return; }
+
+        var b = document.getElementById('btnForgot'), bt = document.getElementById('btnForgotText');
+        b.disabled = true; b.classList.add('loading'); bt.textContent = 'Redefinindo...';
+
+        acharPorEmail(email).then(function (u) {
+          if (!u) throw new Error('Não encontramos uma conta com esse e-mail.');
+          return DB.atualizarUsuario(u.id, { senha: senha });
+        }).then(function () {
+          b.disabled = false; b.classList.remove('loading'); bt.textContent = 'Redefinir senha';
+          abrirModal('Senha redefinida', 'Sua senha foi atualizada. Faça login com a nova senha.', 'Ir para o login', function () {
+            document.getElementById('loginForm').reset();
+            elUser.value = email;
+            mostrarPainel('paneLogin');
+            elPass.focus();
+          });
+        }).catch(function (err) {
+          b.disabled = false; b.classList.remove('loading'); bt.textContent = 'Redefinir senha';
+          showError(err && err.message ? err.message : 'Falha ao redefinir a senha.');
+        });
+      });
+
+      /* ===================== NOVO CADASTRO ===================== */
+      document.getElementById('signup').addEventListener('click', function (e) {
+        e.preventDefault();
+        document.getElementById('signupForm').reset();
+        document.getElementById('newStrength').className = 'strength';
+        mostrarPainel('paneSignup');
+      });
+      document.getElementById('backFromSignup').addEventListener('click', function () { mostrarPainel('paneLogin'); });
+
+      document.getElementById('signupForm').addEventListener('submit', function (ev) {
+        ev.preventDefault();
+        hideError();
+        var fNome = document.getElementById('fieldNome');
+        var fMail = document.getElementById('fieldEmail');
+        var fPass = document.getElementById('fieldNewPass');
+        var fConf = document.getElementById('fieldConfirm');
+        fNome.classList.remove('invalid'); fMail.classList.remove('invalid'); fPass.classList.remove('invalid'); fConf.classList.remove('invalid');
+
+        var nome  = document.getElementById('nome').value.trim();
+        var email = document.getElementById('email').value.trim().toLowerCase();
+        var senha = document.getElementById('newPass').value;
+        var conf  = document.getElementById('confirm').value;
+        var perfil = document.getElementById('perfil').value;
+        var ok = true;
+        if (!nome) { fNome.classList.add('invalid'); ok = false; }
+        if (!EMAIL_RE.test(email)) { fMail.classList.add('invalid'); ok = false; }
+        if (senha.length < 6) { fPass.classList.add('invalid'); ok = false; }
+        if (senha !== conf) { fConf.classList.add('invalid'); ok = false; }
+        if (!ok) { showError('Verifique os campos destacados.'); return; }
+
+        var b = document.getElementById('btnSignup'), bt = document.getElementById('btnSignupText');
+        b.disabled = true; b.classList.add('loading'); bt.textContent = 'Criando conta...';
+
+        acharPorEmail(email).then(function (existe) {
+          if (existe) throw new Error('Já existe uma conta com esse e-mail.');
+          // O login é por e-mail, então gravamos 'usuario' = e-mail.
+          return DB.criarUsuario({ usuario: email, senha: senha, nome: nome, email: email, perfil: perfil, ativo: true });
+        }).then(function () {
+          b.disabled = false; b.classList.remove('loading'); bt.textContent = 'Criar conta';
+          abrirModal('Conta criada', 'Seu cadastro foi realizado com sucesso. Faça login para continuar.', 'Ir para o login', function () {
+            document.getElementById('loginForm').reset();
+            elUser.value = email;
+            mostrarPainel('paneLogin');
+            elPass.focus();
+          });
+        }).catch(function (err) {
+          b.disabled = false; b.classList.remove('loading'); bt.textContent = 'Criar conta';
+          var msg = err && err.message ? err.message : 'Falha ao criar a conta.';
+          if (String(msg).toLowerCase().indexOf('constraint') !== -1 || String(msg).indexOf('unique') !== -1) msg = 'Já existe uma conta com esse e-mail.';
+          showError(msg);
+        });
+      });
+
+      if (!elUser.value) elUser.focus();
+
+      // ---- Inicializa o banco e mostra status na tela ----
+      var dbStatus = document.getElementById('dbStatus');
+      if (dbStatus) dbStatus.textContent = 'Conectando ao banco...';
+
+      DB.init().then(function () {
+        if (dbStatus) {
+          dbStatus.textContent = 'Banco de dados conectado';
+          dbStatus.classList.add('ready');
+        }
+      }).catch(function (err) {
+        showError('Não foi possível abrir o banco de dados do navegador: ' + (err && err.message ? err.message : err));
+        if (dbStatus) dbStatus.textContent = 'Banco indisponível';
+      });
+    })();
+ </script>
+</body>
+</html>

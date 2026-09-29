@@ -1,0 +1,11 @@
+[banco] SQLite pronto.
+
+  TURISMO OS — servidor no ar
+  --------------------------------------------
+  Neste computador : http://localhost:3000
+  Na rede (outros) : http://192.168.101.16:3000
+  WebSocket        : /ws
+  Login            : admin / 123456
+  --------------------------------------------
+  Pressione Ctrl+C para encerrar.
+

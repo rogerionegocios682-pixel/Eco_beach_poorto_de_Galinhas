@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+ <meta charset="UTF-8" />
+ <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+ <title>Turismo OS — Retaguarda</title>
+ <!-- Fontes opcionais: nao bloqueiam o carregamento. -->
+ <!-- Fonte opcional, carregada de forma assincrona: usa a fonte do sistema
+      imediatamente e troca para Inter quando estiver disponivel, sem
+      nunca bloquear a renderizacao (nem exigir internet). -->
+ <script>
+    (function () {
+      var l = document.createElement('link');
+      l.rel = 'stylesheet';
+      l.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap';
+      l.onload = function () { document.documentElement.style.setProperty('--font-ok', '1'); };
+      document.head.appendChild(l);
+    })();
+ </script>
+ <style>
+    /* ===== Identidade visual reaproveitada do sistema existente ===== */
+    :root {
+      --text: #0f172a; --muted: #64748b; --line: #e2e8f0;
+      --brand: #0d6efd; --brand-dark: #0a58ca; --danger: #dc3545;
+      --ok: #16a34a; --warn: #d97706; --bg: #f6f8fc; --sidebar: #0b1220;
+      --radius: 13px;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: var(--bg); color: var(--text);
+      display: grid; grid-template-columns: 248px 1fr; min-height: 100vh;
+    }
+
+    /* ============ MENU LATERAL ============ */
+    .sidebar {
+      background: var(--sidebar); color: #cbd5e1;
+      display: flex; flex-direction: column;
+      position: sticky; top: 0; height: 100vh; z-index: 40;
+    }
+    .sidebar .brand {
+      display: flex; align-items: center; gap: 11px;
+      padding: 20px 20px 18px; font-weight: 700; color: #fff;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+    }
+    .sidebar .brand .mark {
+      width: 34px; height: 34px; border-radius: 10px;
+      background: linear-gradient(135deg, #3b82f6, #0ea5e9);
+      display: grid; place-items: center; flex: 0 0 auto;
+      box-shadow: 0 6px 18px rgba(37,99,235,.4);
+    }
+    .sidebar .brand .mark svg { width: 19px; height: 19px; }
+    .sidebar .brand small { display: block; font-weight: 400; color: #7d90b8; font-size: 11.5px; margin-top: 1px; }
+
+    .nav { padding: 14px 12px; display: flex; flex-direction: column; gap: 3px; overflow-y: auto; flex: 1; }
+    .nav .label {
+      font-size: 10.5px; text-transform: uppercase; letter-spacing: .9px;
+      color: #5b6b8c; font-weight: 600; padding: 12px 12px 6px;
+    }
+    .nav a {
+      display: flex; align-items: center; gap: 12px;
+      padding: 11px 13px; border-radius: 10px;
+      color: #b6c2da; text-decoration: none; font-size: 14px; font-weight: 500;
+      transition: background .15s, color .15s;
+      cursor: pointer;
+    }
+    .nav a svg { width: 18px; height: 18px; flex: 0 0 auto; opacity: .85; }
+    .nav a:hover { background: rgba(255,255,255,.07); color: #fff; }
+    .nav a.active {
+      background: linear-gradient(90deg, rgba(13,110,253,.9), rgba(13,110,253,.55));
+      color: #fff; box-shadow: 0 6px 16px rgba(13,110,253,.28);
+    }
+    .nav a .count {
+      margin-left: auto; font-size: 11.5px; font-weight: 600;
+      background: rgba(255,255,255,.12); padding: 2px 8px; border-radius: 999px;
+    }
+    .nav a.active .count { background: rgba(255,255,255,.25); }
+
+    .sidebar .userbox {
+      padding: 14px 16px; border-top: 1px solid rgba(255,255,255,.07);
+      display: flex; align-items: center; gap: 11px;
+    }
+    .avatar {
+      width: 36px; height: 36px; border-radius: 50%; flex: 0 0 auto;
+      background: linear-gradient(135deg, #3b82f6, #0ea5e9);
+      display: grid; place-items: center; color: #fff; font-weight: 700; font-size: 14px;
+    }
+    .userbox .uinfo { min-width: 0; }
+    .userbox .uname { color: #fff; font-size: 13.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .userbox .urole { color: #7d90b8; font-size: 11.5px; text-transform: capitalize; }
+    .userbox .logout {
+      margin-left: auto; background: transparent; border: 0; color: #7d90b8;
+      cursor: pointer; padding: 6px; border-radius: 8px; display: grid; place-items: center;
+    }
+    .userbox .logout:hover { background: rgba(255,255,255,.08); color: #fff; }
+    .userbox .logout svg { width: 17px; height: 17px; }
+
+    /* ============ ÁREA PRINCIPAL ============ */
+    .main { display: flex; flex-direction: column; min-width: 0; }
+
+    .topbar {
+      background: #fff; border-bottom: 1px solid var(--line);
+      padding: 15px 26px; display: flex; align-items: center; gap: 16px;
+      position: sticky; top: 0; z-index: 30;
+    }
+    .topbar .hamburger {
+      display: none; background: transparent; border: 0; cursor: pointer; padding: 6px;
+      border-radius: 8px; color: var(--text);
+    }
+    .topbar .hamburger:hover { background: #f1f5f9; }
+    .topbar .hamburger svg { width: 22px; height: 22px; }
+    .topbar h1 { margin: 0; font-size: 19px; letter-spacing: -.2px; }
+    .topbar .sub { color: var(--muted); font-size: 12.5px; margin-top: 1px; }
+    .topbar .spacer { flex: 1; }
+    .topbar .refresh {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: #f1f5f9; border: 1px solid var(--line); color: #475569;
+      padding: 8px 13px; border-radius: 9px; font-family: inherit; font-size: 13px;
+      font-weight: 600; cursor: pointer;
+    }
+    .topbar .refresh:hover { background: #e9eef5; }
+    .topbar .refresh svg { width: 15px; height: 15px; }
+    .live-dot {
+      display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: var(--muted);
+    }
+    .live-dot::before {
+      content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--ok);
+      box-shadow: 0 0 0 3px rgba(22,163,74,.2); animation: pulse 1.8s infinite;
+    }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+
+    .content { padding: 24px 26px 40px; }
+
+    /* ============ CARDS DE RESUMO ============ */
+    .summary { display: grid; grid-template-columns: repeat(5, 1fr); gap: 13px; margin-bottom: 22px; }
+    .scard {
+      background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
+      padding: 15px 16px; display: flex; align-items: center; gap: 12px;
+      cursor: pointer; transition: box-shadow .15s, transform .1s, border-color .15s;
+    }
+    .scard:hover { box-shadow: 0 8px 22px rgba(15,23,42,.08); transform: translateY(-1px); }
+    .scard.on { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(13,110,253,.1); }
+    .scard .ico { width: 40px; height: 40px; border-radius: 11px; display: grid; place-items: center; flex: 0 0 auto; }
+    .scard .ico svg { width: 19px; height: 19px; }
+    .scard .n { font-size: 23px; font-weight: 700; line-height: 1; }
+    .scard .t { font-size: 12px; color: var(--muted); margin-top: 3px; font-weight: 500; }
+    .ico.livre   { background: #dcfce7; color: #15803d; }
+    .ico.reservado { background: #fef3c7; color: #b45309; }
+    .ico.hospedado { background: #dbeafe; color: #1d4ed8; }
+    .ico.limpeza  { background: #e0e7ff; color: #4338ca; }
+    .ico.manutencao { background: #fee2e2; color: #b91c1c; }
+
+    /* ============ GRADE DE APARTAMENTOS ============ */
+    .grid-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; flex-wrap: wrap; gap: 12px; }
+    .grid-head h2 { margin: 0; font-size: 16px; }
+    .grid-head .legend { display: flex; gap: 14px; flex-wrap: wrap; }
+    .legend span { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+    .legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+    .filter-input {
+      padding: 9px 13px; border: 1.5px solid var(--line); border-radius: 9px;
+      font-family: inherit; font-size: 13.5px; outline: none; background: #fff; min-width: 200px;
+    }
+    .filter-input:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(13,110,253,.12); }
+
+    .apt-grid {
+      display: grid; gap: 13px;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+
+    /* Card no estilo "porta de apartamento" */
+    .apt {
+      position: relative; background: #fff; border: 1px solid var(--line);
+      border-radius: var(--radius); overflow: hidden; cursor: pointer;
+      transition: box-shadow .15s, transform .1s, border-color .15s;
+      text-align: left; padding: 0;
+      font-family: inherit;
+    }
+    .apt:hover { box-shadow: 0 10px 26px rgba(15,23,42,.12); transform: translateY(-2px); }
+    .apt .top {
+      height: 6px; width: 100%; background: #cbd5e1;
+    }
+    .apt .body { padding: 14px 14px 12px; }
+    .apt .num {
+      font-size: 22px; font-weight: 700; letter-spacing: -.5px;
+      color: var(--text); display: flex; align-items: baseline; gap: 5px;
+    }
+    .apt .num .tag { font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 0; }
+    .apt .tipo { font-size: 12px; color: var(--muted); margin-top: 3px; }
+    .apt .kinfo { margin-top: 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .apt .diaria { font-size: 12.5px; color: #475569; font-weight: 600; }
+    .apt .st {
+      font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px;
+      padding: 3px 8px; border-radius: 999px;
+    }
+    .apt .consumo {
+      margin-top: 9px; font-size: 11.5px; color: var(--warn); font-weight: 600;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .apt .consumo svg { width: 13px; height: 13px; }
+
+    /* cores por status */
+    .apt.s-livre .top { background: #22c55e; }
+    .apt.s-reservado .top { background: #f59e0b; }
+    .apt.s-hospedado .top { background: #3b82f6; }
+    .apt.s-limpeza .top { background: #6366f1; }
+    .apt.s-manutencao .top { background: #ef4444; }
+    .apt.s-livre .st { background: #dcfce7; color: #15803d; }
+    .apt.s-reservado .st { background: #fef3c7; color: #b45309; }
+    .apt.s-hospedado .st { background: #dbeafe; color: #1d4ed8; }
+    .apt.s-limpeza .st { background: #e0e7ff; color: #4338ca; }
+    .apt.s-manutencao .st { background: #fee2e2; color: #b91c1c; }
+    .apt.inativo { opacity: .55; }
+
+    /* ============ TABELAS / PAINÉIS ============ */
+    .panel { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 13px 18px; font-size: 14px; border-bottom: 1px solid var(--line); }
+    th { background: #fafbfe; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .5px; font-weight: 600; }
+    tbody tr:last-child td { border-bottom: 0; }
+    tbody tr:hover { background: #f8fafc; }
+    .empty { padding: 46px 20px; text-align: center; color: var(--muted); }
+    .empty svg { width: 40px; height: 40px; color: #cbd5e1; margin-bottom: 10px; }
+
+    .btn {
+      border: 0; border-radius: 9px; padding: 9px 15px;
+      font-family: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer;
+      transition: filter .15s, transform .05s;
+    }
+    .btn:active { transform: translateY(1px); }
+    .btn-primary { background: var(--brand); color: #fff; }
+    .btn-primary:hover { filter: brightness(1.06); }
+    .btn-sm { padding: 6px 11px; font-size: 12.5px; }
+    .btn-danger { background: #fee2e2; color: #b91c1c; }
+    .btn-ok { background: #dcfce7; color: #15803d; }
+    .btn-warn { background: #fef3c7; color: #b45309; }
+    .btn-ghost-m { background: #f1f5f9; color: #475569; }
+    .btn-ghost-m:hover { background: #e9eef5; }
+
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+    .badge.admin { background: #ede9fe; color: #6d28d9; }
+    .badge.recepcao { background: #dbeafe; color: #1d4ed8; }
+    .badge.garcom { background: #ffedd5; color: #c2410c; }
+    .badge.on { background: #dcfce7; color: #15803d; }
+    .badge.off { background: #f1f5f9; color: #64748b; }
+
+    .td-actions { display: flex; gap: 7px; justify-content: flex-end; }
+    .muted { color: var(--muted); font-size: 12.5px; }
+
+    /* ============ PAINEL LATERAL DE DETALHES ============ */
+    .drawer-bg {
+      position: fixed; inset: 0; background: rgba(15,23,42,.5);
+      opacity: 0; visibility: hidden; transition: opacity .2s; z-index: 50;
+    }
+    .drawer-bg.show { opacity: 1; visibility: visible; }
+    .drawer {
+      position: fixed; top: 0; right: 0; height: 100vh; width: 480px; max-width: 100vw;
+      background: #fff; z-index: 51; transform: translateX(100%);
+      transition: transform .26s cubic-bezier(.4,0,.2,1);
+      display: flex; flex-direction: column; box-shadow: -18px 0 50px rgba(2,6,23,.28);
+    }
+    .drawer.show { transform: translateX(0); }
+    .drawer .dhead {
+      padding: 18px 22px; border-bottom: 1px solid var(--line);
+      display: flex; align-items: flex-start; gap: 14px; background: var(--sidebar); color: #fff;
+    }
+    .drawer .dhead .apt-badge {
+      width: 54px; height: 54px; border-radius: 13px; flex: 0 0 auto;
+      background: linear-gradient(135deg, #3b82f6, #0ea5e9);
+      display: grid; place-items: center; font-weight: 700; font-size: 17px;
+      box-shadow: 0 8px 20px rgba(37,99,235,.45);
+    }
+    .drawer .dhead h2 { margin: 0; font-size: 19px; }
+    .drawer .dhead .dsub { color: #9fb0d0; font-size: 12.5px; margin-top: 3px; }
+    .drawer .dhead .close {
+      margin-left: auto; background: transparent; border: 0; color: #9fb0d0;
+      cursor: pointer; padding: 6px; border-radius: 8px;
+    }
+    .drawer .dhead .close:hover { background: rgba(255,255,255,.1); color: #fff; }
+    .drawer .dhead .close svg { width: 20px; height: 20px; }
+
+    .drawer .dbody { padding: 20px 22px 30px; overflow-y: auto; flex: 1; }
+    .dsec { margin-bottom: 24px; }
+    .dsec h3 {
+      margin: 0 0 12px; font-size: 12px; text-transform: uppercase; letter-spacing: .8px;
+      color: var(--muted); font-weight: 700; display: flex; align-items: center; gap: 8px;
+    }
+    .dtxt { display: grid; grid-template-columns: 1fr 1fr; gap: 11px 16px; }
+    .ditem { border-bottom: 1px dashed #eef2f7; padding-bottom: 8px; }
+    .ditem.full { grid-column: 1 / -1; }
+    .ditem .k { font-size: 11.5px; color: var(--muted); font-weight: 500; }
+    .ditem .v { font-size: 14px; font-weight: 600; margin-top: 2px; word-break: break-word; }
+    .ditem .v.big { font-size: 16px; }
+
+    .cons-box {
+      border: 1.5px solid var(--line); border-radius: 11px; padding: 15px;
+      background: #fafbfe;
+    }
+    .cons-box.has { border-color: #fcd34d; background: #fffbeb; }
+    .cons-stat { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .cons-stat:last-child { margin-bottom: 0; }
+    .cons-stat .k { font-size: 13px; color: #475569; }
+    .cons-stat .v { font-size: 15px; font-weight: 700; }
+    .cons-list { margin-top: 12px; border-top: 1px dashed #e2e8f0; padding-top: 10px; }
+    .cons-item { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; padding: 5px 0; }
+    .cons-item .r { color: var(--muted); }
+
+    .resumo-fin { border-radius: 11px; overflow: hidden; border: 1px solid var(--line); }
+    .resumo-fin .linha { display: flex; justify-content: space-between; padding: 12px 15px; font-size: 13.5px; border-bottom: 1px solid var(--line); }
+    .resumo-fin .linha:last-child { border-bottom: 0; }
+    .resumo-fin .linha .k { color: #475569; }
+    .resumo-fin .total {
+      background: var(--sidebar); color: #fff; font-weight: 700; font-size: 15.5px;
+      padding: 15px;
+    }
+    .resumo-fin .total .k { color: #9fb0d0; font-weight: 500; font-size: 13px; }
+
+    .drawer-foot {
+      padding: 14px 22px; border-top: 1px solid var(--line);
+      display: flex; gap: 10px; background: #fafbfe;
+    }
+    .drawer-foot .btn { flex: 1; }
+    .status-pills { display: flex; gap: 7px; flex-wrap: wrap; }
+    .status-pills button {
+      border: 1.5px solid var(--line); background: #fff; border-radius: 8px;
+      padding: 7px 11px; font-family: inherit; font-size: 12px; font-weight: 600;
+      cursor: pointer; color: #475569;
+    }
+    .status-pills button:hover { background: #f8fafc; }
+    .status-pills button.on { border-color: var(--brand); color: var(--brand); background: #eff6ff; }
+
+    /* ============ RESTAURANTE — MAPA DE MESAS ============ */
+    .mesa-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+    .mesa-legend span { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--muted); cursor: pointer; padding: 4px 9px; border-radius: 999px; }
+    .mesa-legend span.on { background: #eff6ff; color: var(--brand); font-weight: 600; }
+    .mesa-legend i { width: 11px; height: 11px; border-radius: 3px; display: inline-block; }
+
+    .apt.s-aguardando .top { background: #f59e0b; }
+    .apt.s-aguardando .st { background: #fef3c7; color: #b45309; }
+    .apt.s-suja .top { background: #94a3b8; }
+    .apt.s-suja .st { background: #f1f5f9; color: #475569; }
+    .apt.s-reservada .top { background: #a855f7; }
+    .apt.s-reservada .st { background: #f3e8ff; color: #7e22ce; }
+    .apt .mtop {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 11px; color: var(--muted); margin-top: 7px; padding-top: 7px;
+      border-top: 1px dashed #eef2f7;
+    }
+    .apt .mtop b { color: #0f172a; }
+
+    /* ============ COMANDA ============ */
+    .com-item {
+      display: flex; align-items: center; gap: 10px; padding: 9px 0;
+      border-bottom: 1px dashed #eef2f7; font-size: 13.5px;
+    }
+    .com-item.canc { opacity: .5; text-decoration: line-through; }
+    .com-item .q { font-weight: 700; color: var(--brand); min-width: 26px; }
+    .com-item .nm { flex: 1; min-width: 0; }
+    .com-item .nm small { display: block; color: var(--muted); font-size: 11.5px; }
+    .com-item .vl { font-weight: 600; white-space: nowrap; }
+    .com-item .acts { display: flex; gap: 4px; }
+    .com-item .acts button {
+      border: 0; background: #f1f5f9; color: #475569; cursor: pointer;
+      border-radius: 6px; width: 26px; height: 26px; font-size: 14px; font-weight: 700;
+      display: grid; place-items: center;
+    }
+    .com-item .acts button:hover { background: #e2e8f0; }
+    .com-item .acts button.del { background: #fee2e2; color: #b91c1c; }
+    .com-item .acts button.del:hover { background: #fecaca; }
+
+    .com-tot { border-radius: 11px; border: 1px solid var(--line); overflow: hidden; margin-top: 12px; }
+    .com-tot .l { display: flex; justify-content: space-between; padding: 9px 13px; font-size: 13.5px; border-bottom: 1px solid var(--line); }
+    .com-tot .l:last-child { border-bottom: 0; }
+    .com-tot .tt { background: var(--sidebar); color: #fff; font-weight: 700; padding: 12px 13px; display: flex; justify-content: space-between; font-size: 15px; }
+
+    .prod-line {
+      display: flex; align-items: center; gap: 10px; padding: 8px 11px;
+      border: 1px solid var(--line); border-radius: 9px; margin-bottom: 7px; cursor: pointer;
+      background: #fff; transition: border-color .15s, background .15s;
+    }
+    .prod-line:hover { border-color: var(--brand); background: #f8faff; }
+    .prod-line .pn { flex: 1; font-size: 13.5px; font-weight: 600; }
+    .prod-line .pc { font-size: 11px; color: var(--muted); font-weight: 400; }
+    .prod-line .pv { font-weight: 700; color: var(--brand); font-size: 13.5px; }
+    .prod-search { display: flex; gap: 8px; margin-bottom: 10px; }
+    .prod-search input { flex: 1; }
+    .prod-list { max-height: 250px; overflow-y: auto; padding-right: 3px; }
+
+    .carrinho { border: 1px solid var(--line); border-radius: 10px; background: #fafbfe; padding: 10px; margin-top: 12px; }
+    .carrinho .ci { display: flex; justify-content: space-between; align-items: center; font-size: 13px; padding: 5px 0; border-bottom: 1px dashed #e8edf4; }
+    .carrinho .ci:last-child { border-bottom: 0; }
+    .carrinho .ci-act { display: inline-flex; align-items: center; gap: 5px; }
+    .carrinho .ci-act button { border: 0; background: #f1f5f9; color: #475569; cursor: pointer; border-radius: 6px;
+      width: 24px; height: 24px; font-size: 14px; font-weight: 700; display: grid; place-items: center; }
+    .carrinho .ci-act button:hover { background: #e2e8f0; }
+    .carrinho .ct { display: flex; justify-content: space-between; font-weight: 700; font-size: 14.5px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); }
+
+    /* ============ PDV: GRADE VISUAL DE PRODUTOS ============ */
+    .pdv-busca { margin-bottom: 10px; }
+    .pdv-busca input { width: 100%; padding: 11px 14px; border: 1.5px solid var(--line); border-radius: 10px;
+      font-family: inherit; font-size: 14px; outline: none; }
+    .pdv-busca input:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(13,110,253,.12); }
+
+    .pdv-cats { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 9px; margin-bottom: 12px;
+      border-bottom: 1px solid var(--line); -webkit-overflow-scrolling: touch; }
+    .pdv-cats button { border: 1.5px solid var(--line); background: #fff; color: #475569; cursor: pointer;
+      font-family: inherit; font-size: 12.5px; font-weight: 600; padding: 8px 14px; border-radius: 999px;
+      white-space: nowrap; flex: 0 0 auto; }
+    .pdv-cats button:hover { border-color: var(--brand); color: var(--brand); }
+    .pdv-cats button.on { background: var(--brand); border-color: var(--brand); color: #fff; }
+
+    /* Desktop: 4-6 por linha. Tablet: 3-4. Celular: 2. */
+    .pdv-grid { display: grid; gap: 11px; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+      max-height: 46vh; overflow-y: auto; padding: 2px; }
+
+    .pdcard { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: #fff;
+      cursor: pointer; padding: 0; text-align: left; font-family: inherit; color: inherit;
+      transition: border-color .15s, box-shadow .15s, transform .08s; display: flex; flex-direction: column; }
+    .pdcard:hover { border-color: var(--brand); box-shadow: 0 8px 20px rgba(13,110,253,.14); }
+    .pdcard:active, .pdcard.add { transform: scale(.97); border-color: var(--ok); box-shadow: 0 0 0 3px rgba(22,163,74,.22); }
+    .pdcard .pdcard-foto { position: relative; aspect-ratio: 4 / 3; background: #f1f5f9;
+      display: grid; place-items: center; overflow: hidden; }
+    .pdcard .pdcard-foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .pdcard .sfoto { color: #94a3b8; font-size: 10.5px; font-weight: 700; letter-spacing: .6px; }
+    .pdcard .pdcard-info { padding: 8px 10px 10px; display: flex; flex-direction: column; gap: 2px; }
+    .pdcard .pdcard-nome { font-size: 12.8px; font-weight: 600; line-height: 1.25;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .pdcard .pdcard-cat { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
+    .pdcard .pdcard-preco { font-size: 14px; font-weight: 700; color: var(--brand); margin-top: 2px; }
+    .pdcard.indisponivel { opacity: .62; cursor: not-allowed; }
+    .pdcard.indisponivel:hover { border-color: var(--line); box-shadow: none; }
+    .pdcard .pdcard-ind { position: absolute; inset: auto 0 0 0; background: #b91c1c; color: #fff;
+      font-size: 9.5px; font-weight: 700; text-align: center; padding: 3px; letter-spacing: .4px; }
+
+    /* ============ FECHAMENTO DA CONTA + CUPOM ============ */
+    .fc-wrap { display: grid; grid-template-columns: 1fr 300px; gap: 18px; align-items: start; }
+    .fc-info { border-radius: 11px; border: 1px solid var(--line); overflow: hidden; }
+    .fc-info .l { display: flex; justify-content: space-between; padding: 9px 13px; font-size: 13.5px; border-bottom: 1px solid var(--line); }
+    .fc-info .tt { background: var(--sidebar); color: #fff; font-weight: 700; padding: 12px 13px; display: flex; justify-content: space-between; font-size: 16px; }
+    .fc-acoes { display: flex; flex-direction: column; gap: 9px; margin-top: 16px; }
+    .fc-acoes .btn { justify-content: center; padding: 13px; font-size: 13.5px; }
+
+    /* Cupom térmico (também usado na impressão) */
+    .cupom { width: 100%; background: #fff; border: 1px solid var(--line); border-radius: 8px;
+      padding: 16px 14px; font-family: ui-monospace, Consolas, 'Courier New', monospace;
+      font-size: 12px; color: #0f172a; line-height: 1.45; }
+    .cup-logo { text-align: center; margin-bottom: 8px; }
+    .cup-logo img { max-width: 130px; max-height: 62px; object-fit: contain; }
+    .cup-logo-ph { display: inline-grid; place-items: center; width: 46px; height: 46px; border-radius: 50%;
+      background: var(--sidebar); color: #fff; font-size: 20px; font-weight: 700; }
+    .cup-emp { text-align: center; display: flex; flex-direction: column; gap: 1px; }
+    .cup-emp b { font-size: 13.5px; }
+    .cup-emp span { font-size: 11px; }
+    .cup-sep { border-top: 1px dashed #94a3b8; margin: 9px 0; }
+    .cup-meta > div, .cup-tot > div, .cup-pg > div { display: flex; justify-content: space-between; gap: 8px; }
+    .cup-meta span { color: #475569; }
+    .cup-item { margin-bottom: 6px; }
+    .cup-nome { font-weight: 600; word-break: break-word; }
+    .cup-nome small { font-weight: 400; color: #64748b; }
+    .cup-calc { display: flex; justify-content: space-between; }
+    .cup-calc span { color: #475569; }
+    .cup-tt { font-weight: 700; font-size: 14px; border-top: 1px solid #0f172a; margin-top: 5px; padding-top: 5px; }
+    .cup-aviso { background: #fef3c7; color: #92400e; font-size: 10.5px; padding: 6px; border-radius: 5px; text-align: center; }
+    .cup-rodape { text-align: center; font-weight: 600; margin-top: 6px; }
+
+    /* Área de impressão: só existe para o @media print. */
+    #cupomPrint { display: none; }
+
+    /* Divisão da conta */
+    .div-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+    .div-tabs button {
+      flex: 1; border: 1.5px solid var(--line); background: #fff; border-radius: 9px;
+      padding: 9px; font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; color: #475569;
+    }
+    .div-tabs button.on { border-color: var(--brand); background: #eff6ff; color: var(--brand); }
+    .div-pessoa { border: 1px solid var(--line); border-radius: 10px; margin-bottom: 9px; overflow: hidden; }
+    .div-pessoa .dp-h { background: #fafbfe; padding: 9px 12px; font-weight: 700; font-size: 13px; display: flex; justify-content: space-between; border-bottom: 1px solid var(--line); }
+    .div-pessoa .dp-b { padding: 8px 12px; display: grid; gap: 6px; }
+    .div-pessoa label { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; cursor: pointer; }
+    .div-pessoa label input { width: auto; accent-color: var(--brand); }
+    .pag-linha { display: flex; gap: 8px; align-items: center; margin-bottom: 9px; }
+    .pag-linha select { flex: 0 0 130px; }
+    .pag-linha input { flex: 1; }
+
+    /* Histórico de mesa */
+    .hist-item { border: 1px solid var(--line); border-radius: 10px; padding: 11px 13px; margin-bottom: 9px; }
+    .hist-item .hh { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; margin-bottom: 5px; }
+    .hist-item .hd { font-size: 12px; color: var(--muted); line-height: 1.6; }
+    .hist-acts { margin-top: 8px; display: flex; gap: 7px; }
+    .hist-acts button {
+      border: 1px solid var(--line); background: #fff; color: #475569; cursor: pointer;
+      font-family: inherit; font-size: 11.5px; font-weight: 600; padding: 6px 11px; border-radius: 7px;
+    }
+    .hist-acts button:hover { border-color: var(--brand); color: var(--brand); background: #f8faff; }
+
+    /* ============ MODAL ============ */
+    .overlay {
+      position: fixed; inset: 0; background: rgba(15,23,42,.55);
+      display: none; align-items: center; justify-content: center; padding: 20px; z-index: 55;
+    }
+    .overlay.show { display: flex; }
+    .modal { background: #fff; border-radius: 15px; width: 100%; max-width: 470px; max-height: 90vh; overflow-y: auto; padding: 24px; }
+    .modal h3 { margin: 0 0 18px; font-size: 18px; }
+    .modal .field { margin-bottom: 14px; }
+    .modal label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #334155; }
+    .modal input, .modal select, .modal textarea {
+      width: 100%; padding: 11px 13px; border: 1.5px solid var(--line);
+      border-radius: 9px; font-family: inherit; font-size: 14px; outline: none; background: #f8fafc;
+    }
+    .modal textarea { resize: vertical; min-height: 66px; }
+    .modal input:focus, .modal select:focus, .modal textarea:focus {
+      border-color: var(--brand); background: #fff; box-shadow: 0 0 0 3px rgba(13,110,253,.12);
+    }
+    .modal .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .modal-foot { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+
+    /* Ficha de reserva (FNRH) */
+    .msec-title {
+      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px;
+      color: var(--muted); margin: 18px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--line);
+    }
+    .msec-title:first-of-type { margin-top: 0; }
+    .rv-total {
+      margin-top: 18px; padding: 13px 16px; border-radius: 10px;
+      background: #0b1220; color: #fff; display: flex; align-items: center;
+      justify-content: space-between; gap: 12px; font-size: 13px;
+    }
+    .rv-total span { color: #9fb0d0; }
+    .rv-total b { font-size: 16px; }
+    .conf-title { color: #b91c1c; }
+    .conf-msg { font-size: 14px; color: #475569; margin: 0 0 10px; }
+    .conf-list { margin: 0; padding-left: 20px; font-size: 13.5px; color: #334155; line-height: 1.7; }
+    .modal .btn { padding: 10px 18px; }
+
+    .toast {
+      position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%) translateY(80px);
+      background: #0f172a; color: #fff; padding: 12px 20px; border-radius: 10px;
+      font-size: 14px; opacity: 0; transition: all .3s; z-index: 70;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    .toast.err { background: #b91c1c; }
+
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* ============ CALENDÁRIO ============ */
+    .cal-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 14px; }
+    .cal-legend span { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+    .cal-legend i { width: 12px; height: 12px; border-radius: 4px; display: inline-block; }
+
+    .cal-wrap { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); overflow-x: auto; }
+    .cal-table { width: 100%; border-collapse: collapse; min-width: 760px; }
+    .cal-table th, .cal-table td { border-bottom: 1px solid var(--line); border-right: 1px solid #f1f5f9; padding: 8px; font-size: 12px; vertical-align: top; }
+    .cal-table th { background: #fafbfe; color: var(--muted); font-weight: 600; text-align: center; position: sticky; top: 0; }
+    .cal-table td.apt-col, .cal-table th.apt-col {
+      text-align: left; font-weight: 600; background: #fafbfe;
+      position: sticky; left: 0; min-width: 92px; white-space: nowrap;
+    }
+    .cal-cell { min-width: 84px; height: 46px; }
+    .cal-ev {
+      border-radius: 7px; padding: 4px 7px; font-size: 11px; font-weight: 600;
+      margin-bottom: 3px; cursor: pointer; line-height: 1.25; overflow: hidden;
+    }
+    .cal-ev .who { font-weight: 700; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px; }
+    .cal-ev .dt { font-weight: 400; opacity: .85; display: block; }
+    .cal-ev.ev-hospedagem { background: #dbeafe; color: #1d4ed8; }
+    .cal-ev.ev-reserva { background: #fef3c7; color: #b45309; }
+    .cal-free { color: #cbd5e1; font-size: 11px; text-align: center; display: block; padding-top: 8px; }
+    .cal-hoje { background: #eff6ff !important; }
+    .cal-aptcard {
+      border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin-bottom: 12px; background: #fff;
+    }
+    .cal-aptcard .h { background: #fafbfe; border-bottom: 1px solid var(--line); padding: 9px 13px; font-weight: 700; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
+    .cal-aptcard .b { padding: 10px 13px; display: grid; gap: 7px; }
+    .cal-aptcard .linha { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; padding: 7px 9px; border-radius: 8px; }
+    .cal-aptcard .linha.oc { background: #eff6ff; border-left: 3px solid #3b82f6; }
+    .cal-aptcard .linha.rs { background: #fffbeb; border-left: 3px solid #f59e0b; }
+
+    /* ============ FNRH / IMPRESSÃO ============ */
+    @media print {
+      /* Esconde TODA a interface: só o cupom sai na impressora. */
+      body > *:not(#cupomPrint) { display: none !important; }
+      .no-print, .sidebar, .topbar, .sidebar-bg, .drawer, .drawer-bg, .overlay { display: none !important; }
+      body { display: block !important; background: #fff !important; }
+
+      /* Cupom térmico: 80mm (padrão) e 58mm. O tamanho da bobina vem do
+       * atributo data-largura, definido por imprimirCupom(). */
+      #cupomPrint { display: block !important; background: #fff; color: #000; }
+      #cupomPrint[data-largura='80mm'] .cupom { width: 72mm; }
+      #cupomPrint[data-largura='58mm'] .cupom { width: 48mm; font-size: 10px; }
+      #cupomPrint .cupom { border: 0; border-radius: 0; padding: 0; margin: 0 auto;
+        font-family: ui-monospace, Consolas, 'Courier New', monospace; color: #000; }
+      #cupomPrint .cup-emp span, #cupomPrint .cup-meta span, #cupomPrint .cup-calc span { color: #000; }
+      #cupomPrint .cup-logo-ph { background: #000; }
+      #cupomPrint .cup-tt { border-top: 1px solid #000; }
+      #cupomPrint .cup-sep { border-top: 1px dashed #000; }
+      @page { margin: 4mm; }
+    }
+
+    /* Modal ampliado (grade de cards do PDV e fechamento de conta) */
+    .modal.wide { max-width: 880px; }
+
+    /* ============ RESPONSIVO ============ */
+    @media (max-width: 1100px) {
+      .summary { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 900px) {
+      body { grid-template-columns: 1fr; }
+      .sidebar {
+        position: fixed; left: 0; top: 0; transform: translateX(-100%);
+        transition: transform .25s; width: 262px;
+      }
+      .sidebar.open { transform: translateX(0); }
+      .topbar .hamburger { display: grid; }
+      .drawer { width: 100%; }
+      .summary { grid-template-columns: repeat(2, 1fr); }
+      /* Tablet: 3 a 4 cards por linha. */
+      .pdv-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+      .fc-wrap { grid-template-columns: 1fr 260px; }
+    }
+    @media (max-width: 700px) {
+      .cal-table { min-width: 620px; }
+      .cal-table td.apt-col, .cal-table th.apt-col { min-width: 74px; }
+    }
+    @media (max-width: 560px) {
+      .content { padding: 16px 14px 40px; }
+      /* PDV: 2 cards por linha no celular. */
+      .pdv-grid { grid-template-columns: repeat(2, 1fr); gap: 9px; max-height: 42vh; }
+      .fc-wrap { grid-template-columns: 1fr; }
+      .pdv-cats button { padding: 9px 13px; }
+      .topbar { padding: 12px 14px; }
+      .summary { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .scard { padding: 12px; }
+      .scard .n { font-size: 19px; }
+      .apt-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+      .dtxt { grid-template-columns: 1fr; }
+      .sidebar-bg.show { opacity: 1; visibility: visible; }
+    }
+    .sidebar-bg {
+      position: fixed; inset: 0; background: rgba(15,23,42,.5);
+      opacity: 0; visibility: hidden; transition: opacity .2s; z-index: 39;
+    }
+ </style>
+</head>
+<body>
+  <!-- ============ MENU LATERAL ============ -->
+ <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <span class="mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/></svg>
+      </span>
+      <span>Turismo OS<small>Retaguarda</small></span>
+    </div>
+
+    <nav class="nav" id="nav">
+      <div class="label">Operação</div>
+      <a data-view="aptos" class="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/></svg>
+        Aptos <span class="count" id="cntAptos">0</span>
+      </a>
+      <a data-view="reservas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        Reservas <span class="count" id="cntReservas">0</span>
+      </a>
+      <a data-view="calendario">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>
+        Calendário
+      </a>
+      <a data-view="mesas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11h16"/><path d="M5 11V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v4"/><path d="M3 11v6a1 1 0 0 0 1 1h1"/><path d="M19 18h1a1 1 0 0 0 1-1v-6"/><path d="M7 18v2M17 18v2"/></svg>
+        Mesas <span class="count" id="cntMesas">0</span>
+      </a>
+      <a data-view="passantes">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Passantes <span class="count" id="cntPassantes">0</span>
+      </a>
+
+      <div class="label">Administração</div>
+      <a data-view="cadastros">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+        Cadastros
+      </a>
+      <a id="navUsuarios" href="usuarios.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Usuários
+      </a>
+
+      <div class="label">Gestão</div>
+      <a href="configuracoes.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Configurações
+      </a>
+      <a href="estoque.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h18v4H3z"/><path d="M5 7v13a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V7"/><path d="M10 11h4"/></svg>
+        Estoque
+      </a>
+      <a href="fiscal.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3h11l5 5v13a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h5"/></svg>
+        Fiscal
+      </a>
+      <a href="auditoria.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Auditoria
+      </a>
+    </nav>
+
+    <div class="userbox">
+      <div class="avatar" id="uAvatar">?</div>
+      <div class="uinfo">
+        <div class="uname" id="uNome">—</div>
+        <div class="urole" id="uPerfil">—</div>
+      </div>
+      <button class="logout" id="btnLogout" title="Sair">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+      </button>
+    </div>
+ </aside>
+ <div class="sidebar-bg" id="sidebarBg"></div>
+
+  <!-- ============ ÁREA PRINCIPAL ============ -->
+ <div class="main">
+    <div class="topbar">
+      <button class="hamburger" id="btnMenu" aria-label="Menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+      <div>
+        <h1 id="pageTitle">Aptos</h1>
+        <div class="sub" id="pageSub">Visão geral dos apartamentos da empresa</div>
+      </div>
+      <div class="spacer"></div>
+      <span class="live-dot">Tempo real</span>
+      <button class="refresh" id="btnRefresh">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        Atualizar
+      </button>
+    </div>
+
+    <div class="content">
+      <!-- ===== VIEW: APTOS ===== -->
+      <section class="view active" id="view-aptos">
+        <div class="summary" id="summary"></div>
+
+        <div class="grid-head">
+          <h2>Apartamentos</h2>
+          <div class="legend">
+            <span><i style="background:#22c55e"></i>Livre</span>
+            <span><i style="background:#f59e0b"></i>Reservado</span>
+            <span><i style="background:#3b82f6"></i>Hospedado</span>
+            <span><i style="background:#6366f1"></i>Limpeza</span>
+            <span><i style="background:#ef4444"></i>Manutenção</span>
+          </div>
+          <input class="filter-input" id="filtroAptos" placeholder="Filtrar por número…" />
+        </div>
+
+        <div class="apt-grid" id="aptGrid"></div>
+      </section>
+
+      <!-- ===== VIEW: RESERVAS ===== -->
+      <section class="view" id="view-reservas">
+        <div class="grid-head">
+          <div>
+            <h2>Reservas</h2>
+            <div class="muted">Centro de controle das reservas e hospedagens.</div>
+          </div>
+          <button class="btn btn-primary" id="btnNovaReserva">+ Nova reserva</button>
+        </div>
+        <div class="panel" style="overflow-x:auto">
+          <table>
+            <thead><tr><th>Nº</th><th>Hóspede</th><th>Apto</th><th>Check-in</th><th>Check-out</th><th>Diárias</th><th>Pessoas</th><th>Total</th><th>Pagamento</th><th>Status</th><th style="text-align:right">Ações</th></tr></thead>
+            <tbody id="tbReservas"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ===== VIEW: CALENDÁRIO ===== -->
+      <section class="view" id="view-calendario">
+        <div class="grid-head no-print">
+          <div>
+            <h2>Calendário de ocupação</h2>
+            <div class="muted" id="calPeriodo">—</div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center">
+            <button class="btn btn-ghost-m btn-sm" id="calHoje">Hoje</button>
+            <button class="btn btn-ghost-m btn-sm" id="calPrev">◀ Anterior</button>
+            <button class="btn btn-ghost-m btn-sm" id="calNext">Próximo ▶</button>
+            <select class="filter-input" id="calModo" style="min-width:150px">
+              <option value="apto">Por apartamento</option>
+              <option value="dia">Por dia</option>
+            </select>
+          </div>
+        </div>
+        <div class="cal-legend no-print">
+          <span><i style="background:#3b82f6"></i>Hospedado</span>
+          <span><i style="background:#f59e0b"></i>Reservado</span>
+          <span><i style="background:#94a3b8"></i>Livre</span>
+        </div>
+        <div class="cal-wrap" id="calWrap"></div>
+      </section>
+
+      <!-- ===== VIEW: CADASTROS ===== -->
+      <section class="view" id="view-cadastros">
+        <div class="grid-head"><h2>Cadastros</h2></div>
+        <div class="summary" style="grid-template-columns:repeat(4,1fr)">
+          <div class="scard" data-cad="hospedes">
+            <div class="ico hospedado"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+            <div><div class="n" id="cntHospedes">0</div><div class="t">Hóspedes</div></div>
+          </div>
+          <div class="scard" data-cad="aptos">
+            <div class="ico livre"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/></svg></div>
+            <div><div class="n" id="cntAptosCad">0</div><div class="t">Apartamentos</div></div>
+          </div>
+          <div class="scard" data-cad="usuarios">
+            <div class="ico limpeza"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+            <div><div class="n" id="cntUsuarios">0</div><div class="t">Usuários</div></div>
+          </div>
+          <div class="scard" data-cad="passantes">
+            <div class="ico reservado"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg></div>
+            <div><div class="n" id="cntPassantesCad">0</div><div class="t">Passantes</div></div>
+          </div>
+        </div>
+
+        <div class="grid-head">
+          <h2>Hóspedes cadastrados</h2>
+          <button class="btn btn-primary" id="btnNovoHospede">+ Novo hóspede</button>
+        </div>
+        <div class="panel">
+          <table>
+            <thead><tr><th>Nome</th><th>Telefone</th><th>Documento</th><th>E-mail</th><th style="text-align:right">Ações</th></tr></thead>
+            <tbody id="tbHospedes"></tbody>
+          </table>
+        </div>
+
+        <div class="grid-head" style="margin-top:28px">
+          <h2>Apartamentos cadastrados</h2>
+          <button class="btn btn-primary" id="btnNovoAptoCad">+ Novo apartamento</button>
+        </div>
+        <div class="panel">
+          <table>
+            <thead><tr><th>Número</th><th>Tipo</th><th>Capacidade</th><th>Diária</th><th>Situação</th><th style="text-align:right">Ações</th></tr></thead>
+            <tbody id="tbAptosCad"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ===== VIEW: MESAS ===== -->
+      <section class="view" id="view-mesas">
+        <div class="grid-head">
+          <div>
+            <h2>Mapa de mesas</h2>
+            <div class="muted">Toque numa mesa para abrir a comanda ou lançar produtos.</div>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-ghost-m" id="btnConsumoApto">Lançar consumo no APTO</button>
+            <button class="btn btn-ghost-m" id="btnProdutos">Produtos</button>
+            <button class="btn btn-primary" id="btnNovaMesa">+ Nova mesa</button>
+          </div>
+        </div>
+
+        <div class="mesa-legend">
+          <span data-f="livre"><i style="background:#22c55e"></i>Livre</span>
+          <span data-f="ocupada"><i style="background:#3b82f6"></i>Ocupada</span>
+          <span data-f="aguardando"><i style="background:#f59e0b"></i>Aguardando conta</span>
+          <span data-f="suja"><i style="background:#94a3b8"></i>Suja</span>
+          <span data-f="reservada"><i style="background:#a855f7"></i>Reservada</span>
+        </div>
+
+        <div class="apt-grid" id="mesaGrid"></div>
+      </section>
+
+      <!-- ===== VIEW: PASSANTES ===== -->
+      <section class="view" id="view-passantes">
+        <div class="grid-head">
+          <h2>Passantes</h2>
+          <button class="btn btn-primary" id="btnNovoPassante">+ Novo passante</button>
+        </div>
+        <div class="panel">
+          <table>
+            <thead><tr><th>Nome</th><th>Telefone</th><th>Origem</th><th>Data</th><th>Valor</th><th style="text-align:right">Ações</th></tr></thead>
+            <tbody id="tbPassantes"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+ </div>
+
+  <!-- ============ PAINEL DE DETALHES DO APARTAMENTO ============ -->
+ <div class="drawer-bg" id="drawerBg"></div>
+ <aside class="drawer" id="drawer">
+    <div class="dhead">
+      <div class="apt-badge" id="dAptoBadge">—</div>
+      <div>
+        <h2 id="dTitulo">Apartamento</h2>
+        <div class="dsub" id="dSubtitulo">—</div>
+      </div>
+      <button class="close" id="btnFecharDrawer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="dbody" id="dBody"></div>
+    <div class="drawer-foot" id="dFoot"></div>
+ </aside>
+
+  <!-- ============ COMANDA (drawer) ============ -->
+ <div class="drawer-bg" id="comBg"></div>
+ <aside class="drawer" id="comDrawer">
+    <div class="dhead">
+      <div class="apt-badge" id="comBadge">—</div>
+      <div>
+        <h2 id="comTitulo">Comanda</h2>
+        <div class="dsub" id="comSub">—</div>
+      </div>
+      <button class="close" id="comFechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="dbody" id="comBody"></div>
+    <div class="drawer-foot" id="comFoot"></div>
+ </aside>
+
+  <!-- ============ MODAL GENÉRICO ============ -->
+ <div class="overlay" id="overlay">
+    <div class="modal" id="modalBox"></div>
+ </div>
+
+ <!-- ============ ÁREA DE IMPRESSÃO DO CUPOM ============
+      Fica fora da interface: o @media print esconde todo o resto e imprime
+      SOMENTE o cupom aqui dentro (58mm ou 80mm, conforme data-largura). -->
+ <div id="cupomPrint" data-largura="80mm"></div>
+
+ <div class="toast" id="toast"></div>
+
+ <script src="db.js"></script>
+ <script src="printService.js"></script>
+ <script src="dashboard.js"></script>
+</body>
+</html>

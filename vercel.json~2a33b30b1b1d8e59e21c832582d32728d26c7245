@@ -1,0 +1,25 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "cleanUrls": false,
+  "outputDirectory": ".",
+  "redirects": [
+    { "source": "/", "destination": "/login.html", "permanent": false },
+    { "source": "/login", "destination": "/login.html", "permanent": false },
+    { "source": "/dashboard", "destination": "/dashboard.html", "permanent": false },
+    { "source": "/configuracoes", "destination": "/configuracoes.html", "permanent": false },
+    { "source": "/estoque", "destination": "/estoque.html", "permanent": false },
+    { "source": "/fiscal", "destination": "/fiscal.html", "permanent": false },
+    { "source": "/fnrh", "destination": "/fnrh.html", "permanent": false },
+    { "source": "/usuarios", "destination": "/usuarios.html", "permanent": false },
+    { "source": "/auditoria", "destination": "/auditoria.html", "permanent": false }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+      ]
+    }
+  ]
+}

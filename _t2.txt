@@ -1,0 +1,16 @@
+✔ login valido devolve usuario e token utilizavel (5.753ms)
+✔ senha errada nao emite token (0.4575ms)
+✔ token adulterado ou expirado e rejeitado (1.2744ms)
+✔ criar reserva gera numero sequencial e bloqueia sobreposicao (196.569ms)
+✔ verificarConflito rejeita data de saida anterior a entrada (122.3269ms)
+✔ pagar comanda rejeita valores invalidos e soma corretamente (1033.2058ms)
+✔ checkout finaliza a estadia e marca o apartamento para limpeza (252.438ms)
+✔ empresa preserva status/planoId ao atualizar (sem duplicatas) (228.0036ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 11176.4574

@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+ <meta charset="UTF-8" />
+ <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+ <title>Turismo OS — Usuários</title>
+ <script>
+    (function () {
+      var l = document.createElement('link');
+      l.rel = 'stylesheet';
+      l.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap';
+      document.head.appendChild(l);
+    })();
+ </script>
+ <style>
+    :root {
+      --text: #0f172a; --muted: #64748b; --line: #e2e8f0;
+      --brand: #0d6efd; --danger: #dc3545; --ok: #16a34a; --warn: #d97706;
+      --bg: #f6f8fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg); color: var(--text); min-height: 100vh;
+    }
+
+    header {
+      background: #0b1220; color: #fff;
+      padding: 16px 28px; display: flex; align-items: center; justify-content: space-between;
+      box-shadow: 0 4px 18px rgba(2,6,23,.25);
+    }
+    header .brand { display: flex; align-items: center; gap: 11px; font-weight: 700; }
+    header .mark {
+      width: 34px; height: 34px; border-radius: 10px;
+      background: linear-gradient(135deg, #3b82f6, #0ea5e9);
+      display: grid; place-items: center;
+    }
+    header .mark svg { width: 19px; height: 19px; }
+    header .actions { display: flex; gap: 10px; }
+
+    .btn {
+      border: 0; border-radius: 9px; padding: 9px 15px;
+      font-family: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer;
+      transition: filter .15s, transform .05s;
+    }
+    .btn:active { transform: translateY(1px); }
+    .btn-primary { background: var(--brand); color: #fff; }
+    .btn-ghost { background: rgba(255,255,255,.1); color: #cbd5e1; }
+    .btn-ghost:hover { background: rgba(255,255,255,.18); }
+    .btn-sm { padding: 6px 11px; font-size: 12.5px; }
+    .btn-danger { background: #fee2e2; color: #b91c1c; }
+    .btn-danger:hover { background: #fecaca; }
+    .btn-ok { background: #dcfce7; color: #15803d; }
+    .btn-ok:hover { background: #bbf7d0; }
+    .btn-warn { background: #fef3c7; color: #b45309; }
+
+    main { padding: 28px; max-width: 1080px; margin: 0 auto; }
+
+    .page-head { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 22px; flex-wrap: wrap; gap: 12px; }
+    .page-head h1 { margin: 0 0 4px; font-size: 24px; letter-spacing: -.3px; }
+    .page-head p { margin: 0; color: var(--muted); font-size: 14px; }
+
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 22px; }
+    .stat {
+      background: #fff; border: 1px solid var(--line); border-radius: 13px; padding: 16px 18px;
+    }
+    .stat .label { font-size: 12.5px; color: var(--muted); font-weight: 500; margin-bottom: 6px; }
+    .stat .value { font-size: 26px; font-weight: 700; }
+    .stat .value.green { color: var(--ok); }
+    .stat .value.red { color: var(--danger); }
+
+    .panel { background: #fff; border: 1px solid var(--line); border-radius: 13px; overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 13px 18px; font-size: 14px; border-bottom: 1px solid var(--line); }
+    th { background: #fafbfe; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .5px; font-weight: 600; }
+    tbody tr:last-child td { border-bottom: 0; }
+    tbody tr:hover { background: #f8fafc; }
+
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+    .badge.admin { background: #ede9fe; color: #6d28d9; }
+    .badge.recepcao { background: #dbeafe; color: #1d4ed8; }
+    .badge.garcom { background: #ffedd5; color: #c2410c; }
+    .badge.on { background: #dcfce7; color: #15803d; }
+    .badge.off { background: #f1f5f9; color: #64748b; }
+
+    .td-actions { display: flex; gap: 7px; }
+    .muted { color: var(--muted); font-size: 12.5px; }
+
+    /* Modal */
+    .overlay {
+      position: fixed; inset: 0; background: rgba(15,23,42,.55);
+      display: none; align-items: center; justify-content: center; padding: 20px; z-index: 50;
+    }
+    .overlay.show { display: flex; }
+    .modal { background: #fff; border-radius: 15px; width: 100%; max-width: 430px; padding: 26px; }
+    .modal h3 { margin: 0 0 20px; font-size: 19px; }
+    .modal .field { margin-bottom: 15px; }
+    .modal label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #334155; }
+    .modal input, .modal select {
+      width: 100%; padding: 11px 13px; border: 1.5px solid var(--line);
+      border-radius: 9px; font-family: inherit; font-size: 14px; outline: none; background: #f8fafc;
+    }
+    .modal input:focus, .modal select:focus { border-color: var(--brand); background: #fff; box-shadow: 0 0 0 3px rgba(13,110,253,.12); }
+    .modal-foot { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; }
+    .modal .btn-ghost-m { background: #f1f5f9; color: #475569; }
+    .modal .btn-primary { padding: 11px 20px; }
+
+    .toast {
+      position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%) translateY(80px);
+      background: #0f172a; color: #fff; padding: 12px 20px; border-radius: 10px;
+      font-size: 14px; opacity: 0; transition: all .3s; z-index: 60;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    .toast.err { background: #b91c1c; }
+    .empty { padding: 40px; text-align: center; color: var(--muted); }
+
+    @media (max-width: 640px) {
+      .stats { grid-template-columns: 1fr; }
+      main { padding: 16px; }
+      th, td { padding: 11px 12px; }
+    }
+ </style>
+</head>
+<body>
+ <header>
+    <div class="brand">
+      <span class="mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/></svg>
+      </span>
+      Turismo OS <span style="font-weight:400;color:#7d90b8;margin-left:4px">· Usuários</span>
+    </div>
+    <div class="actions">
+      <button class="btn btn-ghost" id="btnReset">Restaurar dados iniciais</button>
+      <button class="btn btn-ghost" onclick="location.href='login.html'">Sair</button>
+    </div>
+ </header>
+
+ <main>
+    <div class="page-head">
+      <div>
+        <h1>Gestão de usuários</h1>
+        <p>Contas gravadas no banco de dados do navegador (IndexedDB).</p>
+      </div>
+      <button class="btn btn-primary" id="btnNovo">+ Novo usuário</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="label">Total de usuários</div>
+        <div class="value" id="statTotal">—</div>
+      </div>
+      <div class="stat">
+        <div class="label">Ativos</div>
+        <div class="value green" id="statAtivos">—</div>
+      </div>
+      <div class="stat">
+        <div class="label">Inativos</div>
+        <div class="value red" id="statInativos">—</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <table>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Usuário</th>
+            <th>Perfil</th>
+            <th>Status</th>
+            <th>Criado em</th>
+            <th style="text-align:right">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tbody">
+          <tr><td colspan="6" class="empty">Carregando…</td></tr>
+        </tbody>
+      </table>
+    </div>
+ </main>
+
+  <!-- Modal novo usuário -->
+ <div class="overlay" id="overlay">
+    <div class="modal">
+      <h3 id="modalTitle">Novo usuário</h3>
+      <div class="field">
+        <label for="mNome">Nome completo</label>
+        <input type="text" id="mNome" placeholder="ex.: Maria Souza" />
+      </div>
+      <div class="field">
+        <label for="mUsuario">Usuário (login)</label>
+        <input type="text" id="mUsuario" placeholder="ex.: maria" />
+      </div>
+      <div class="field">
+        <label for="mEmail">E-mail</label>
+        <input type="email" id="mEmail" placeholder="ex.: maria@hotel.com" />
+      </div>
+      <div class="field">
+        <label for="mPerfil">Perfil</label>
+        <select id="mPerfil">
+          <option value="recepcao">Recepção</option>
+          <option value="garcom">Restaurante / Garçom</option>
+          <option value="admin">Administrador / Gerente</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="mSenha">Senha <span id="senhaHint" class="muted"></span></label>
+        <input type="text" id="mSenha" placeholder="mínimo 4 caracteres" />
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-ghost-m" id="btnCancelar">Cancelar</button>
+        <button class="btn btn-primary" id="btnSalvar">Salvar</button>
+      </div>
+    </div>
+ </div>
+
+ <div class="toast" id="toast"></div>
+
+ <script src="db.js"></script>
+ <script>
+    (function () {
+      var sessao = null;
+      try { sessao = JSON.parse(localStorage.getItem('turismo_session') || 'null'); } catch (e) { sessao = null; }
+      if (!sessao) { window.location.href = 'login.html'; return; }
+      if ((sessao.perfil || 'admin') !== 'admin') { window.location.href = 'dashboard.html'; return; }
+
+      var tbody = document.getElementById('tbody');
+      var overlay = document.getElementById('overlay');
+      var editingId = null;
+
+      var $ = function (id) { return document.getElementById(id); };
+
+      function toast(msg, err) {
+        var t = $('toast');
+        t.textContent = msg;
+        t.className = 'toast show' + (err ? ' err' : '');
+        setTimeout(function () { t.className = 'toast'; }, 2600);
+      }
+
+      function esc(s) {
+        return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+          return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+      }
+
+      function fmtData(iso) {
+        if (!iso) return '—';
+        var d = new Date(iso);
+        var data = d.toLocaleDateString('pt-BR');
+        var hora = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        return data + ' às ' + hora;
+      }
+
+      function render(lista) {
+        if (!lista.length) {
+          tbody.innerHTML = '<tr><td colspan="6" class="empty">Nenhum usuário cadastrado.</td></tr>';
+        } else {
+          lista.sort(function (a, b) { return (b.criadoEm || '').localeCompare(a.criadoEm || ''); });
+          tbody.innerHTML = lista.map(function (u) {
+            return '<tr>' +
+              '<td>' + esc(u.nome) + (u.email ? '<div class="muted">' + esc(u.email) + '</div>' : '') + '</td>' +
+              '<td>' + esc(u.usuario) + '</td>' +
+              '<td><span class="badge ' + esc(u.perfil) + '">' + esc(u.perfil) + '</span></td>' +
+              '<td><span class="badge ' + (u.ativo ? 'on' : 'off') + '">' + (u.ativo ? 'Ativo' : 'Inativo') + '</span></td>' +
+              '<td class="muted">' + fmtData(u.criadoEm) + '</td>' +
+              '<td><div class="td-actions" style="justify-content:flex-end">' +
+                '<button class="btn btn-sm btn-warn" data-edit="' + u.id + '">Editar</button>' +
+                '<button class="btn btn-sm ' + (u.ativo ? 'btn-danger' : 'btn-ok') + '" data-toggle="' + u.id + '">' +
+                  (u.ativo ? 'Desativar' : 'Ativar') + '</button>' +
+                '<button class="btn btn-sm btn-danger" data-del="' + u.id + '">Excluir</button>' +
+              '</div></td>' +
+            '</tr>';
+          }).join('');
+        }
+
+        var ativos = lista.filter(function (u) { return u.ativo; }).length;
+        $('statTotal').textContent = lista.length;
+        $('statAtivos').textContent = ativos;
+        $('statInativos').textContent = lista.length - ativos;
+      }
+
+      function carregar() {
+        DB.listarUsuarios().then(render).catch(function (e) { toast('Erro ao carregar: ' + e.message, true); });
+      }
+
+      function abrirModal(u) {
+        editingId = u ? u.id : null;
+        $('modalTitle').textContent = u ? 'Editar usuário' : 'Novo usuário';
+        $('mNome').value = u ? u.nome : '';
+        $('mUsuario').value = u ? u.usuario : '';
+        $('mUsuario').disabled = !!u;
+        $('mEmail').value = u ? u.email || '' : '';
+        $('mPerfil').value = u ? u.perfil : 'recepcao';
+        $('mSenha').value = '';
+        $('senhaHint').textContent = u ? '(deixe vazio para manter)' : '(obrigatória)';
+        overlay.classList.add('show');
+        $('mNome').focus();
+      }
+
+      function fecharModal() { overlay.classList.remove('show'); editingId = null; }
+
+      $('btnNovo').addEventListener('click', function () { abrirModal(null); });
+      $('btnCancelar').addEventListener('click', fecharModal);
+      overlay.addEventListener('click', function (e) { if (e.target === overlay) fecharModal(); });
+
+      $('btnSalvar').addEventListener('click', function () {
+        var nome = $('mNome').value.trim();
+        var usuario = $('mUsuario').value.trim().toLowerCase();
+        var email = $('mEmail').value.trim();
+        var perfil = $('mPerfil').value;
+        var senha = $('mSenha').value;
+
+        if (!nome || !usuario) { toast('Preencha nome e usuário.', true); return; }
+
+        if (editingId) {
+          var dados = { nome: nome, email: email, perfil: perfil };
+          if (senha) {
+            if (senha.length < 4) { toast('A senha deve ter ao menos 4 caracteres.', true); return; }
+            dados.senha = senha;
+          }
+          DB.atualizarUsuario(editingId, dados).then(function () {
+            fecharModal(); carregar(); toast('Usuário atualizado com sucesso.');
+          }).catch(function (e) { toast('Erro ao atualizar: ' + e.message, true); });
+        } else {
+          if (senha.length < 4) { toast('A senha deve ter ao menos 4 caracteres.', true); return; }
+          DB.criarUsuario({ nome: nome, usuario: usuario, email: email, perfil: perfil, senha: senha, ativo: true })
+            .then(function () {
+              fecharModal(); carregar(); toast('Usuário criado no banco de dados.');
+            })
+            .catch(function (e) {
+              var msg = (e && e.name === 'ConstraintError')
+                ? 'Já existe um usuário com esse login.'
+                : 'Erro ao criar: ' + e.message;
+              toast(msg, true);
+            });
+        }
+      });
+
+      // Ações da tabela (delegação de evento)
+      tbody.addEventListener('click', function (e) {
+        var b = e.target.closest('button');
+        if (!b) return;
+
+        if (b.dataset.edit) {
+          var idEdit = Number(b.dataset.edit);
+          DB.listarUsuarios().then(function (lista) {
+            var u = lista.filter(function (x) { return x.id === idEdit; })[0];
+            if (u) abrirModal(u);
+          });
+        }
+
+        if (b.dataset.toggle) {
+          var idT = Number(b.dataset.toggle);
+          DB.listarUsuarios().then(function (lista) {
+            var u = lista.filter(function (x) { return x.id === idT; })[0];
+            if (!u) return;
+            DB.atualizarUsuario(idT, { ativo: !u.ativo }).then(function () {
+              carregar();
+              toast('Usuário ' + (u.ativo ? 'desativado' : 'ativado') + '.');
+            });
+          });
+        }
+
+        if (b.dataset.del) {
+          var idD = Number(b.dataset.del);
+          DB.listarUsuarios().then(function (lista) {
+            var u = lista.filter(function (x) { return x.id === idD; })[0];
+            if (!u) return;
+            if (confirm('Excluir o usuário "' + u.nome + '" do banco de dados?')) {
+              DB.removerUsuario(idD).then(function () {
+                carregar(); toast('Usuário excluído do banco.');
+              });
+            }
+          });
+        }
+      });
+
+      $('btnReset').addEventListener('click', function () {
+        if (confirm('Isso apaga TODOS os dados e recria os usuários iniciais. Continuar?')) {
+          DB.resetarBanco().then(function () { carregar(); toast('Banco restaurado com os dados iniciais.'); });
+        }
+      });
+
+      // Inicializa banco e carrega a lista
+      DB.init().then(carregar).catch(function (e) {
+        toast('Falha ao abrir o banco: ' + e.message, true);
+        tbody.innerHTML = '<tr><td colspan="6" class="empty">Banco de dados indisponível.</td></tr>';
+      });
+    })();
+ </script>
+</body>
+</html>
